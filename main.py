@@ -10,35 +10,40 @@ image = "blank_states_img.gif"
 screen.addshape(image)
 turtle.shape(image)
 screen.tracer(0)
-tim = Turtle()
-game_going = True
-score = [0]
 
-def game(score):
-    answer_state = screen.textinput(title=f"{score[0]}/50 states correct", prompt="What is a states name?").title()
 
-    states = pandas.read_csv("50_states.csv")
+data = pandas.read_csv("50_states.csv")
+all_states = data.state.to_list()
+guessed_states = []
 
-    if answer_state not in states.values:
-        game(score)
+while len(guessed_states) < 50:
+    answer_state = screen.textinput(title=f"{len(guessed_states)}/50 states correct",
+                                    prompt="What's another state's name?").title()
+    if answer_state == "Exit":
+        break
+    if answer_state in all_states:
+        guessed_states.append(answer_state)
+        t = turtle.Turtle()
+        t.hideturtle()
+        t.penup()
+        state_date = data[data.state == answer_state]
+        t.goto(int(state_date.x), int(state_date.y))
+        t.write(answer_state)
 
-    else:
-        picked_state = states[states["state"] == answer_state]
 
-        name = picked_state.iat[0, 0]
-        x = picked_state.iat[0, 1]
-        y = picked_state.iat[0, 2]
-        score[0] = score[0] + 1
-        tim.hideturtle()
-        tim.penup()
-        tim.goto(0, 300)
+states_to_learn = []
 
-        tim.goto(x=x, y=y)
-        tim.write(name, font=("Courier", 15, "normal"))
-        screen.update()
+for state in all_states:
+    if state not in guessed_states:
+        states_to_learn.append(state)
 
-while game_going:
-    game(score)
+states_df = pandas.DataFrame(states_to_learn)
+states_df.to_csv("states.to.learn.csv")
+
+
+
+
+
 
 
 
